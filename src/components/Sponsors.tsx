@@ -8,8 +8,7 @@ import kaedingLogo from '../assets/86d8d64a5dd67ab456a1797e0c3c366f3342f86c.png'
 import rogersLogo from '../assets/2f7043cff75c34f58c4ac2c8a775e045ab56cae8.png';
 import jmsPaintingLogo from '../assets/b97fd351aa829768218b40a4188bd55273d31f54.png';
 import dingoEzyLogo from '../assets/97dcb446c0c12640db304a66eae57aabda3efa7c.png';
-// Note: Maxim Racing logo file is missing, using placeholder
-const maximRacingLogo = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzFhMWExYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNmZjY2MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5NYXhpbSBSYWNpbmc8L3RleHQ+PC9zdmc+';
+import maximRacingLogo from '../assets/6244a9202de6566915a2e6966336422688859ca5.png';
 
 export function Sponsors() {
   const ref = useRef(null);
