@@ -114,7 +114,6 @@ export function Contact() {
           >
             <p className="text-[0.7em] tracking-[0.3em] m-0 mb-[30px] opacity-40 font-black">CONTACT</p>
             <p className="font-light m-0 mb-[10px]">admin@jmsmotorsport.com.au</p>
-            <p className="font-light m-0 mb-[10px]">+61 432 480 066</p>
             <p className="font-light m-0 mb-[10px]">Sydney, NSW</p>
 
             <div className="mt-[60px] pt-[35px] border-t border-[#222]">
