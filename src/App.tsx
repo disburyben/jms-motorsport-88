@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/Hero';
 import { NextEvent } from './components/NextEvent';
@@ -11,6 +11,7 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { Admin } from './components/Admin';
 import { Loading } from './components/Loading';
+import { projectId, publicAnonKey } from './utils/supabase/info';
 import carImage1 from './assets/9af74f7de68473c678e8346a58b6dd170eb61358.png';
 import carImage2 from './assets/5276abd9ae1edcabc7726464a9ac05adad7f2545.png';
 import carImage3 from './assets/dd754015a12b9d3f5baacbade8e2d7a7852dd501.png';
@@ -23,6 +24,36 @@ export default function App() {
   // Check URL for admin access
   const urlParams = new URLSearchParams(window.location.search);
   const isAdmin = urlParams.get('admin') === 'true' || showAdmin;
+
+  // Track page visit
+  useEffect(() => {
+    const trackVisit = async () => {
+      try {
+        await fetch(
+          `https://${projectId}.supabase.co/functions/v1/make-server-e359eb76/track/visit`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${publicAnonKey}`,
+            },
+            body: JSON.stringify({
+              page: window.location.pathname,
+              referrer: document.referrer || 'direct',
+              userAgent: navigator.userAgent,
+            }),
+          }
+        );
+      } catch (error) {
+        console.error('Failed to track visit:', error);
+      }
+    };
+
+    // Only track if not admin page and not loading
+    if (!isLoading && !isAdmin) {
+      trackVisit();
+    }
+  }, [isLoading, isAdmin]);
 
   // Show loading screen
   if (isLoading) {
