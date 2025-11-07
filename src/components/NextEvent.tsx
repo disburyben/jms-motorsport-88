@@ -15,26 +15,36 @@ export function NextEvent() {
   useEffect(() => {
     // Set to December 29, 2025 - NSW Sprintcar Title at Morris Park Speedway, Dubbo
     const countdownDate = new Date('December 29, 2025 19:00:00').getTime();
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     const updateCountdown = () => {
       const now = new Date().getTime();
       const distance = countdownDate - now;
 
-      if (distance > 0) {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000),
-        });
-      } else {
+      if (distance <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+        return;
       }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      });
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
+    interval = setInterval(updateCountdown, 1000);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, []);
 
   const formatNumber = (num: number) => String(num).padStart(2, '0');
