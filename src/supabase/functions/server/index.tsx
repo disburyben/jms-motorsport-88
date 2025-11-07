@@ -1,8 +1,10 @@
 import { Hono } from "npm:hono";
+import type { Context } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import * as kv from "./kv_store.tsx";
 const app = new Hono();
+const ADMIN_EXPORT_TOKEN = Deno.env.get("EXPORT_ADMIN_TOKEN");
 
 // Enable logger
 app.use('*', logger(console.log));
@@ -18,6 +20,21 @@ app.use(
     maxAge: 600,
   }),
 );
+
+const verifyAdmin = (c: Context) => {
+  if (!ADMIN_EXPORT_TOKEN) {
+    console.error("EXPORT_ADMIN_TOKEN environment variable is not configured.");
+    return c.json({ error: "Server misconfiguration" }, 500);
+  }
+
+  const authHeader = c.req.header("authorization");
+  if (!authHeader || authHeader !== `Bearer ${ADMIN_EXPORT_TOKEN}`) {
+    console.warn("Unauthorized attempt to access admin export endpoint.");
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  return null;
+};
 
 // Health check endpoint
 app.get("/make-server-e359eb76/health", (c) => {
@@ -82,6 +99,11 @@ app.post("/make-server-e359eb76/signup", async (c) => {
 
 // Get all contact forms as CSV
 app.get("/make-server-e359eb76/export/contacts", async (c) => {
+  const authResponse = verifyAdmin(c);
+  if (authResponse) {
+    return authResponse;
+  }
+
   try {
     const contacts = await kv.getByPrefix("contact:");
     
@@ -115,6 +137,11 @@ app.get("/make-server-e359eb76/export/contacts", async (c) => {
 
 // Get all email signups as CSV
 app.get("/make-server-e359eb76/export/signups", async (c) => {
+  const authResponse = verifyAdmin(c);
+  if (authResponse) {
+    return authResponse;
+  }
+
   try {
     const signups = await kv.getByPrefix("signup:");
     

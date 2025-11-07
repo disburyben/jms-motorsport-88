@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'motion/react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 
@@ -9,12 +9,37 @@ export function Store() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleReset = () => {
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+    }
+    resetTimerRef.current = setTimeout(() => {
+      setStatus('idle');
+      setMessage('');
+    }, 5000);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    setMessage('');
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      if (!normalizedEmail) {
+        throw new Error('Email is required.');
+      }
+
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-e359eb76/signup`,
         {
@@ -23,7 +48,7 @@ export function Store() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${publicAnonKey}`,
           },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email: normalizedEmail }),
         }
       );
 
@@ -33,20 +58,15 @@ export function Store() {
         setStatus('success');
         setMessage('Thanks! We\'ll notify you when the store launches.');
         setEmail('');
-        setTimeout(() => {
-          setStatus('idle');
-          setMessage('');
-        }, 5000);
+        scheduleReset();
       } else {
         throw new Error(data.error || 'Failed to sign up');
       }
     } catch (error) {
+      console.error('Error submitting store signup:', error);
       setStatus('error');
-      setMessage('Something went wrong. Please try again.');
-      setTimeout(() => {
-        setStatus('idle');
-        setMessage('');
-      }, 5000);
+      setMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      scheduleReset();
     }
   };
 
